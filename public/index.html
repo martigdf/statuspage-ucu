@@ -4,134 +4,391 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estado de Servicios - DevOps UCU</title>
+    <title>Estado de los servicios · Universidad Católica del Uruguay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* Paleta institucional UCU (extraída de ucu.edu.uy) */
+            --navy: #173363;
+            --navy-deep: #1c2a47;
+            --teal: #0eafb1;
+            --orange: #ea5b0c;
+
+            --ok: #1a8a4a;
+            --down: #c0392b;
+
+            --paper: #f4f5f7;
+            --card: #ffffff;
+            --text: #1c2a47;
+            --muted: #5f6a7d;
+            --line: #dcdfe5;
+            --measure: 1100px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { -webkit-text-size-adjust: 100%; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f4f6f9;
-            color: #333;
             margin: 0;
-            padding: 40px;
+            background: var(--paper);
+            color: var(--text);
+            font-family: "Asap", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            font-size: 15px;
+            line-height: 1.55;
+            font-variant-numeric: tabular-nums;
         }
 
-        .container {
-            max-width: 800px;
+        a { color: inherit; }
+
+        .shell {
+            max-width: var(--measure);
             margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 0 28px;
         }
 
-        h1 {
-            margin-top: 0;
-            font-size: 24px;
+        /* ---------- cabecera ---------- */
+
+        .masthead {
+            background: var(--navy);
+            color: #ffffff;
+        }
+
+        .masthead .shell {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 20px;
+            min-height: 88px;
         }
 
-        .badge {
-            font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            color: white;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #ffffff;
         }
 
-        .badge-v1 {
-            background-color: #3182ce;
+        .logo {
+            height: 42px;
+            width: auto;
+            display: block;
         }
 
-        .badge-v2 {
-            background-color: #38a169;
+        .brand .unidad {
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            padding-left: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.85);
         }
 
-        .banner {
-            background: #e6fffa;
-            border-left: 4px solid #319795;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            border-radius: 0 4px 4px 0;
+
+        /* ---------- servicios ---------- */
+
+        .group { padding-top: 40px; }
+        .group:first-child { padding-top: 34px; }
+
+        .group-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--navy);
+            margin: 0 0 14px;
         }
 
-        .service-list {
+        .rows {
             list-style: none;
+            margin: 0;
             padding: 0;
+            background: var(--card);
+            border: 1px solid var(--line);
         }
 
-        .service-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #edf2f7;
+        .row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 232px 108px;
             align-items: center;
+            gap: 24px;
+            padding: 18px 22px;
+            text-decoration: none;
+            color: inherit;
+            border-bottom: 1px solid var(--line);
         }
 
-        .dot {
-            height: 10px;
-            width: 10px;
-            background-color: #48bb78;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
+        .rows li:last-child .row { border-bottom: 0; }
+
+        /* v1 informa solo el estado actual: sin cinta ni porcentaje */
+        body[data-version="v1"] .row { grid-template-columns: minmax(0, 1fr) 40px; }
+        body[data-version="v1"] .ribbon { display: none; }
+
+        .row:hover, .row:focus-visible { background: #f7fbfc; }
+
+        .row:focus-visible {
+            outline: 2px solid var(--navy);
+            outline-offset: -2px;
         }
 
-        .incident-box {
-            margin-top: 25px;
-            background: #fffaf0;
-            border: 1px solid #feebc8;
-            padding: 15px;
-            border-radius: 6px;
+        .svc-name {
+            font-weight: 600;
+            font-size: 16.5px;
+            color: var(--navy);
+        }
+
+        .svc-detail {
+            display: block;
+            color: var(--muted);
+            font-size: 13.5px;
+        }
+
+        .svc-host {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #93a0b0;
+            margin-top: 4px;
+        }
+
+        /* cinta de 90 días */
+        .ribbon {
+            display: flex;
+            gap: 2px;
+            align-items: stretch;
+            height: 26px;
+        }
+
+        .tick { flex: 1; background: #dfe3e8; }
+        .tick.ok { background: var(--teal); opacity: 0.55; }
+        .tick.warn { background: var(--orange); opacity: 1; }
+        .tick.down { background: var(--down); opacity: 1; }
+        .tick.nodata { background: #dfe3e8; opacity: 1; }
+
+        /* estado: porcentaje + tick o cruz */
+        .svc-state {
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 9px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .svc-state .mark { font-size: 17px; line-height: 1; }
+        .svc-state.up .mark { color: var(--ok); }
+        .svc-state.down .mark { color: var(--down); }
+        .svc-state .pct { color: var(--text); }
+
+        /* ---------- incidentes (v2) ---------- */
+
+        .incident {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--orange);
+            padding: 22px 24px;
+        }
+
+        .incident-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .severity {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #8a3a06;
+            background: #fdeee2;
+            padding: 3px 9px;
+        }
+
+        .incident h3 {
+            font-weight: 600;
+            font-size: 20px;
+            color: var(--navy);
+            margin: 10px 0 0;
+        }
+
+        .incident p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            max-width: 70ch;
+        }
+
+        /* ---------- pie ---------- */
+
+        footer {
+            margin-top: 56px;
+            background: var(--navy-deep);
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        footer .shell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 40px;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 28px;
+            padding-bottom: 32px;
+            font-size: 13px;
+        }
+
+        footer a {
+            color: #ffffff;
+            text-decoration: none;
+            border-bottom: 1px solid var(--teal);
+        }
+
+        .contacts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 22px;
+        }
+
+        .build {
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        @media (max-width: 760px) {
+            .shell { padding: 0 20px; }
+            .brand .unidad { display: none; }
+            .row {
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 10px 16px;
+            }
+            .ribbon { display: none; }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>
-            <span>🟢 Estado de la Infraestructura</span>
-            <span id="version-badge" class="badge">Cargando...</span>
-        </h1>
-        <div id="banner-container" class="banner">Sistema operando bajo monitoreo continuo (DevOps UCU).</div>
+    <header class="masthead">
+        <div class="shell">
+            <div class="brand">
+                <svg class="logo" role="img" aria-label="Universidad Católica del Uruguay" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 408.14 142.926" > <path fill="currentColor" d="M326.983,86.133V23.989h20.874v60.226c0,11.236,5.645,18.852,17.945,18.852 c11.502,0,17.679-6.443,17.679-18.852V23.989h20.606v60.918c0,23.323-16.348,36.157-38.711,36.157 C342.267,121.065,326.983,109.563,326.983,86.133"/> <path fill="currentColor" d="M144.124,86.133V23.989h20.874v60.226c0,11.236,5.645,18.852,17.945,18.852 c11.502,0,17.679-6.443,17.679-18.852V23.989h20.607v60.918c0,23.323-16.349,36.157-38.712,36.157 C159.353,121.065,144.124,109.563,144.124,86.133"/> <path fill="currentColor" d="M57.38,4.074C26.814,4.129,2.053,28.889,2,59.455v26.092c0,30.564,24.814,55.379,55.38,55.379 s55.38-24.813,55.38-55.379V59.455C112.707,28.889,87.945,4.129,57.38,4.074 M57.38,130.17c-24.655,0-44.624-19.969-44.677-44.623 V59.455c0-24.654,19.969-44.677,44.677-44.677s44.677,19.97,44.677,44.677v26.092C102.003,110.201,82.035,130.17,57.38,130.17"/> <path fill="currentColor" d="M22.738,103.889h65.284c1.917-2.981,3.354-6.23,4.26-9.639H18.478 C19.436,97.657,20.874,100.906,22.738,103.889"/> <path fill="currentColor" d="M29.181,111.557c6.816,6.177,15.709,9.638,24.921,9.638h2.502c9.212,0,18.105-3.461,24.921-9.638H29.181z"/> <polygon fill="currentColor" points="66.456,42.385 58.415,42.385 58.415,50.373 52.345,50.373 52.345,42.385 44.304,42.385 44.304,35.994 52.345,35.994 52.345,28.008 58.415,28.008 58.415,35.994 66.456,35.994 "/> <polygon fill="currentColor" points="55.38,64.164 17.839,85.783 17.839,86.688 92.921,86.688 92.921,85.783 "/> <path fill="currentColor" d="M236.085,87.303V57.59c0-23.057,18.105-35.197,39.086-35.197c18.371,0,37.647,9.798,37.647,31.471v3.78 h-19.702v-1.917c0-11.129-9.746-15.655-17.785-15.655c-8.733,0-18.479,4.687-18.479,16.88v29.713 c0,10.598,8.572,16.721,19.01,16.721c8.041,0,17.254-4.579,17.254-15.813v-1.758h19.702v3.728c0,21.674-18.638,31.471-37.114,31.471 C254.83,121.065,236.085,109.936,236.085,87.303"/> </svg>
+                <span class="unidad">Estado de los servicios</span>
+            </div>
+        </div>
+    </header>
 
-        <h3>Servicios Core</h3>
-        <ul class="service-list" id="services">
-            <!-- Dinámico -->
-        </ul>
 
-        <div id="incidents-section"></div>
-    </div>
+    <main class="shell" id="groups"></main>
+
+    <div class="shell" id="incidents"></div>
+
+    <footer>
+        <div class="shell">
+            <span>Operada por estudiantes de la Universidad Católica del Uruguay</span>
+            <span class="contacts">
+                <a href="mailto:estudiante1@ucu.edu.uy">estudiante1@ucu.edu.uy</a>
+                <a href="mailto:estudiante2@ucu.edu.uy">estudiante2@ucu.edu.uy</a>
+                <a href="mailto:estudiante3@ucu.edu.uy">estudiante3@ucu.edu.uy</a>
+            </span>
+            <span class="build">Release <span id="release">—</span></span>
+        </div>
+    </footer>
 
     <script>
-        fetch('/api/status')
-            .then(res => res.json())
-            .then(data => {
-                const badge = document.getElementById('version-badge');
-                badge.innerText = data.version.toUpperCase();
-                badge.className = `badge badge-${data.version}`;
+        // Cada barra agrupa 2 días de historia real. Gana el peor estado del grupo.
+        const DIAS_POR_BARRA = 2;
 
-                if (data.version === 'v2') {
-                    document.getElementById('banner-container').innerText = "🟢 v2 Activa: Sistema operando con balanceo Blue/Green sin interrupciones.";
-                }
+        function ribbon(history) {
+            let out = '';
+            for (let i = 0; i < history.length; i += DIAS_POR_BARRA) {
+                const grupo = history.slice(i, i + DIAS_POR_BARRA);
+                let estado = 'nodata';
+                if (grupo.some(d => d.state === 'down')) estado = 'down';
+                else if (grupo.some(d => d.state === 'warn')) estado = 'warn';
+                else if (grupo.some(d => d.state === 'ok')) estado = 'ok';
+                out += '<span class="tick ' + estado + '"></span>';
+            }
+            return out;
+        }
 
-                const list = document.getElementById('services');
-                list.innerHTML = data.services.map(s => `
-                    <li class="service-item">
-                        <span><span class="dot"></span><strong>${s.name}</strong></span>
-                        <span>Uptime: ${s.uptime} | <span style="color: #38a169;">${s.status}</span></span>
-                    </li>
-                `).join('');
+        function esc(s) {
+            return String(s).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
+        }
 
-                if (data.incidentHistory && data.incidentHistory.length > 0) {
-                    document.getElementById('incidents-section').innerHTML = `
-                        <div class="incident-box">
-                            <strong>Historial de Incidentes (Nuevo en v2):</strong>
-                            <p style="margin: 5px 0 0 0; font-size: 13px; color: #744210;">${data.incidentHistory[0].date} - ${data.incidentHistory[0].title}</p>
-                        </div>
-                    `;
-                }
-            });
+        function render(data) {
+            document.getElementById('release').textContent = data.version.toUpperCase();
+            document.body.dataset.version = data.version;
+
+            const orden = [];
+            const porGrupo = new Map();
+            for (const s of data.services) {
+                if (!porGrupo.has(s.group)) { porGrupo.set(s.group, []); orden.push(s.group); }
+                porGrupo.get(s.group).push(s);
+            }
+
+            document.getElementById('groups').innerHTML = orden.map(g => {
+                const filas = porGrupo.get(g).map(s => {
+                    const up = s.status === 'Operational';
+                    // v1 no envia history ni uptime: la fila queda en estado puro
+                    const conHistorico = Array.isArray(s.history);
+                    const pct = s.uptime === null || s.uptime === undefined
+                        ? 'sin datos'
+                        : s.uptime.toFixed(2) + '%';
+                    return '<li>' +
+                        '<a class="row" href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer">' +
+                            '<span>' +
+                                '<span class="svc-name">' + esc(s.name) + '</span>' +
+                                '<span class="svc-detail">' + esc(s.detail) + '</span>' +
+                                '<span class="svc-host">' + esc(s.host) + '</span>' +
+                            '</span>' +
+                            (conHistorico
+                                ? '<span class="ribbon" aria-hidden="true" title="Historial registrado · cada barra equivale a 2 días · gris = sin datos">' + ribbon(s.history) + '</span>'
+                                : '') +
+                            '<span class="svc-state ' + (up ? 'up' : 'down') + '">' +
+                                (conHistorico ? '<span class="pct">' + esc(pct) + '</span>' : '') +
+                                '<span class="mark">' + (up ? '✓' : '✕') + '</span>' +
+                            '</span>' +
+                        '</a></li>';
+                }).join('');
+                return '<section class="group"><h2 class="group-title">' + esc(g) + '</h2><ul class="rows">' + filas + '</ul></section>';
+            }).join('');
+
+            const inc = data.incidentHistory || [];
+            document.getElementById('incidents').innerHTML = inc.length === 0 ? '' :
+                '<section class="group"><h2 class="group-title">Historial de incidentes</h2>' +
+                inc.map(i =>
+                    '<article class="incident">' +
+                        '<div class="incident-head">' +
+                            '<span class="severity">Impacto ' + esc(i.severity) + '</span>' +
+                            '<span>' + esc(i.date) + '</span>' +
+                            '<span>' + esc(i.service || '') + '</span>' +
+                        '</div>' +
+                        '<h3>' + esc(i.title) + '</h3>' +
+                        (i.detail ? '<p>' + esc(i.detail) + '</p>' : '') +
+                    '</article>'
+                ).join('') + '</section>';
+        }
+
+        function cargar() {
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(render)
+                .catch(err => console.error('No se pudo consultar el estado', err));
+        }
+
+        cargar();
+        setInterval(cargar, 30000);
     </script>
 </body>
 

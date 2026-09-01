@@ -22,5 +22,26 @@ spec:
         env:
         - name: APP_VERSION
           value: "v1"
+        - name: DATA_DIR
+          value: "/data"
+        volumeMounts:
+        - name: datos
+          mountPath: /data
         ports:
         - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 20
+      volumes:
+      - name: datos
+        persistentVolumeClaim:
+          claimName: status-page-data

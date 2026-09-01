@@ -1,0 +1,13 @@
+# Volumen compartido por blue y green: el historial de estado sobrevive
+# a los reinicios de pod y al switch entre versiones.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: status-page-data
+  namespace: status-project
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

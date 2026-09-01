@@ -7,7 +7,7 @@ spec:
   type: NodePort
   selector:
     app: status-page
-    env: blue   # <--- CAMBIAR A 'green' PARA REALIZAR EL BLUE/GREEN SWITCH
+    env: green   # <--- CAMBIAR A 'blue' PARA VOLVER ATRAS (rollback instantaneo)
   ports:
     - protocol: TCP
       port: 80
