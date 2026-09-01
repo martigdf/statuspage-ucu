@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: status-page-green
+  namespace: status-project
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: status-page
+      env: green
+  template:
+    metadata:
+      labels:
+        app: status-page
+        env: green
+    spec:
+      containers:
+      - name: web
+        image: status-page:v2
+        imagePullPolicy: Never # Si usas Minikube localmente
+        env:
+        - name: APP_VERSION
+          value: "v2"
+        ports:
+        - containerPort: 3000
