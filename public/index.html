@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de Servicios - DevOps UCU</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            color: white;
+        }
+
+        .badge-v1 {
+            background-color: #3182ce;
+        }
+
+        .badge-v2 {
+            background-color: #38a169;
+        }
+
+        .banner {
+            background: #e6fffa;
+            border-left: 4px solid #319795;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .service-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #edf2f7;
+            align-items: center;
+        }
+
+        .dot {
+            height: 10px;
+            width: 10px;
+            background-color: #48bb78;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .incident-box {
+            margin-top: 25px;
+            background: #fffaf0;
+            border: 1px solid #feebc8;
+            padding: 15px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>
+            <span>🟢 Estado de la Infraestructura</span>
+            <span id="version-badge" class="badge">Cargando...</span>
+        </h1>
+        <div id="banner-container" class="banner">Sistema operando bajo monitoreo continuo (DevOps UCU).</div>
+
+        <h3>Servicios Core</h3>
+        <ul class="service-list" id="services">
+            <!-- Dinámico -->
+        </ul>
+
+        <div id="incidents-section"></div>
+    </div>
+
+    <script>
+        fetch('/api/status')
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.getElementById('version-badge');
+                badge.innerText = data.version.toUpperCase();
+                badge.className = `badge badge-${data.version}`;
+
+                if (data.version === 'v2') {
+                    document.getElementById('banner-container').innerText = "🟢 v2 Activa: Sistema operando con balanceo Blue/Green sin interrupciones.";
+                }
+
+                const list = document.getElementById('services');
+                list.innerHTML = data.services.map(s => `
+                    <li class="service-item">
+                        <span><span class="dot"></span><strong>${s.name}</strong></span>
+                        <span>Uptime: ${s.uptime} | <span style="color: #38a169;">${s.status}</span></span>
+                    </li>
+                `).join('');
+
+                if (data.incidentHistory && data.incidentHistory.length > 0) {
+                    document.getElementById('incidents-section').innerHTML = `
+                        <div class="incident-box">
+                            <strong>Historial de Incidentes (Nuevo en v2):</strong>
+                            <p style="margin: 5px 0 0 0; font-size: 13px; color: #744210;">${data.incidentHistory[0].date} - ${data.incidentHistory[0].title}</p>
+                        </div>
+                    `;
+                }
+            });
+    </script>
+</body>
+
+</html>
