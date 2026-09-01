@@ -1,0 +1,12 @@
+{
+    "name": "status-page-app",
+    "version": "1.0.0",
+    "description": "Portal de Estado de Servicios - DevOps UCU",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.19.2"
+    }
+}
