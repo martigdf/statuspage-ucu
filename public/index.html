@@ -287,6 +287,7 @@
     </header>
 
 
+    <!-- Los servicios y los incidentes se generan por JS desde /api/status -->
     <main class="shell" id="groups"></main>
 
     <div class="shell" id="incidents"></div>
@@ -307,6 +308,7 @@
         // Cada barra agrupa 2 días de historia real. Gana el peor estado del grupo.
         const DIAS_POR_BARRA = 2;
 
+        // Convierte el historico de 90 dias en la tira de barritas de color.
         function ribbon(history) {
             let out = '';
             for (let i = 0; i < history.length; i += DIAS_POR_BARRA) {
@@ -320,12 +322,15 @@
             return out;
         }
 
+        // Escapa texto antes de insertarlo en el HTML generado a mano.
         function esc(s) {
             return String(s).replace(/[&<>"']/g, c => ({
                 '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
             }[c]));
         }
 
+        // Pinta la pagina entera con la respuesta de /api/status:
+        // agrupa los servicios por categoria y, si hay, lista los incidentes.
         function render(data) {
             document.getElementById('release').textContent = data.version.toUpperCase();
             document.body.dataset.version = data.version;
@@ -364,6 +369,7 @@
                 return '<section class="group"><h2 class="group-title">' + esc(g) + '</h2><ul class="rows">' + filas + '</ul></section>';
             }).join('');
 
+            // El historial de incidentes solo llega en v2; en v1 la seccion queda vacia.
             const inc = data.incidentHistory || [];
             document.getElementById('incidents').innerHTML = inc.length === 0 ? '' :
                 '<section class="group"><h2 class="group-title">Historial de incidentes</h2>' +
@@ -380,6 +386,7 @@
                 ).join('') + '</section>';
         }
 
+        // Consulta la API y repinta. Se llama al abrir y cada 30 segundos.
         function cargar() {
             fetch('/api/status')
                 .then(res => res.json())

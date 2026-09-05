@@ -1,3 +1,6 @@
+// Status page de los servicios de la UCU.
+// El servidor hace dos cosas: sondea periodicamente cada servicio y guarda el
+// resultado en disco, y expone una API (/api/status) que la pagina consulta.
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
@@ -83,6 +86,7 @@ const SERVICES = [
 
 // ---------------------------------------------------------------- utilidades
 
+// Crea los directorios de datos si todavia no existen.
 function ensureDirs() {
     for (const d of [DATA_DIR, LIVE_DIR, DAILY_DIR]) {
         fs.mkdirSync(d, { recursive: true });
@@ -97,6 +101,7 @@ function writeAtomic(file, obj) {
     fs.renameSync(tmp, file);
 }
 
+// Lee un JSON del disco; devuelve null si no existe o esta corrupto.
 function readJson(file) {
     try {
         return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -105,6 +110,7 @@ function readJson(file) {
     }
 }
 
+// Fecha en formato YYYY-MM-DD, que es la clave con la que se guarda cada dia.
 function isoDate(d) {
     return d.toISOString().slice(0, 10);
 }
@@ -113,6 +119,8 @@ function isoDate(d) {
 
 // Un servicio está operativo si responde algo por HTTP con código < 500.
 // Un 401/403 significa que hay un login delante, no que el servicio esté caído.
+// Hace una peticion HTTP a un servicio y devuelve si esta arriba,
+// el codigo de respuesta y cuanto tardo (o el motivo del fallo).
 async function checkOne(svc) {
     const started = Date.now();
     const controller = new AbortController();
@@ -140,6 +148,8 @@ async function checkOne(svc) {
     }
 }
 
+// Sondea todos los servicios en paralelo y guarda dos cosas:
+// el estado instantaneo de esta replica y el acumulado ok/fail del dia.
 async function runProbe() {
     const results = {};
     await Promise.all(SERVICES.map(async svc => {
@@ -177,6 +187,8 @@ async function runProbe() {
 // -------------------------------------------------------------- agregación
 
 // Combina los archivos de todas las réplicas.
+// Combina los archivos de estado instantaneo de todas las replicas y
+// devuelve, por servicio, la observacion mas reciente.
 function readLive() {
     const merged = {};
     let newest = null;
@@ -197,6 +209,8 @@ function readLive() {
     return { results: merged, ts: newest };
 }
 
+// Reconstruye los ultimos 90 dias por servicio: un estado por dia
+// (ok / warn / down / nodata) mas el uptime acumulado del periodo.
 function readHistory() {
     const dias = [];
     const hoy = new Date();
@@ -246,6 +260,8 @@ function readHistory() {
 }
 
 // Incidentes reales: días en los que quedó registrada al menos una falla.
+// A partir del historico arma la lista de incidentes (dias con fallas),
+// ordenados del mas reciente al mas viejo y limitados a los 20 ultimos.
 function buildIncidents(hist) {
     const out = [];
     for (const svc of SERVICES) {
@@ -271,6 +287,9 @@ function buildIncidents(hist) {
 // Releer 180 archivos en cada request sería innecesario: la historia
 // solo cambia cuando corre una sonda.
 let cache = { at: 0, value: null };
+// Arma la respuesta completa de la API combinando estado actual e historico.
+// Cachea el resultado 15 segundos porque leer todos los archivos en cada
+// request no aporta nada: los datos solo cambian cuando corre una sonda.
 function snapshot() {
     if (cache.value && Date.now() - cache.at < 15000) return cache.value;
     const live = readLive();
@@ -318,14 +337,18 @@ function snapshot() {
 
 // ---------------------------------------------------------------- servidor
 
+// Sirve la pagina estatica de public/
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Estado de todos los servicios; es lo que consume el front cada 30 segundos.
 app.get('/api/status', (req, res) => {
     res.json(snapshot());
 });
 
+// Endpoint de salud usado por las probes de Kubernetes.
 app.get('/healthz', (req, res) => res.json({ ok: true, version: APP_VERSION }));
 
+// Arranque: prepara el disco, sondea una vez y luego repite cada CHECK_INTERVAL_MS.
 ensureDirs();
 runProbe().catch(err => console.error('[probe] error inicial', err));
 setInterval(() => runProbe().catch(err => console.error('[probe] error', err)), CHECK_INTERVAL_MS);
